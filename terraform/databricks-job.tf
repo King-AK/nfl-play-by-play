@@ -45,11 +45,15 @@ resource "databricks_job" "nfl_pbp_pipeline" {
     job_cluster_key = "nfl_pbp_pipeline_cluster"
 
     notebook_task {
-      notebook_path = "notebooks/bronze/ingest"
+      notebook_path = "notebooks/bronze/BronzeIngestion"
       source        = "Git Provider"
       base_parameters = {
         storage_account_name = var.poc_storage_account
         container_name       = var.poc_container_name
+        // TODO: move following to locals
+        catalog_name         = "nfl-play-by-play-project" 
+        bronze_database_name = "bronze"
+        raw_data_relative_path = "landing/nfl_play_by_play"
       }
     }
   }
@@ -66,12 +70,16 @@ resource "databricks_job" "nfl_pbp_pipeline" {
       job_cluster_key = "nfl_pbp_pipeline_cluster"
 
       notebook_task {
-        notebook_path = "notebooks/silver/curate"
+        notebook_path = "notebooks/silver/SilverCuration"
         source        = "Git Provider"
         base_parameters = {
           target_team          = task.value
           storage_account_name = var.poc_storage_account
           container_name       = var.poc_container_name
+          // TODO: move following to locals
+          catalog_name         = "nfl-play-by-play-project"
+          bronze_database_name = "bronze"
+          silver_database_name = "silver"
         }
       }
     }
