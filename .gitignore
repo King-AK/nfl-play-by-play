@@ -1,0 +1,5 @@
+# terraform stuff
+terraform/.terraform
+terraform/.*.hcl
+terraform/*.tfstate*
+terraform/legacystuff/terraform.tfvars.json
