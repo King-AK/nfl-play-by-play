@@ -91,7 +91,7 @@ resource "databricks_job" "nfl_pbp_pipeline" {
     existing_cluster_id = databricks_cluster.single_node_cluster.id
 
     notebook_task {
-      notebook_path   = "notebooks/gold/GoldPublish_IndicatorAugs_and_Labels.py"
+      notebook_path   = "notebooks/gold/GoldPublish_IndicatorAugs_and_Labels"
       source          = "Git Provider"
       base_parameters = {
         storage_account_name = var.poc_storage_account
