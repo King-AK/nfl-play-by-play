@@ -65,29 +65,44 @@ resource "databricks_job" "nfl_pbp_pipeline" {
     }
   }
 
-  dynamic "task" {
-    for_each = ["PIT", "NE", "GB"]
-    content {
-      task_key = format("silver-%s", task.value)
+  task {
+    task_key            = "silver"
+    existing_cluster_id = databricks_cluster.single_node_cluster.id
 
-      depends_on {
-        task_key = "bronze"
+    notebook_task {
+      notebook_path   = "notebooks/silver/SilverCuration"
+      source          = "Git Provider"
+      base_parameters = {
+        storage_account_name = var.poc_storage_account
+        container_name       = var.poc_container_name
+        catalog_name         = local.catalog_name
+        bronze_database_name = local.bronze_database_name
+        silver_database_name = local.silver_database_name
       }
+    }
 
-      existing_cluster_id = databricks_cluster.single_node_cluster.id
+    depends_on {
+      task_key = "bronze"
+    }
+  }
 
-      notebook_task {
-        notebook_path   = "notebooks/silver/SilverCuration"
-        source          = "Git Provider"
-        base_parameters = {
-          target_team          = task.value
-          storage_account_name = var.poc_storage_account
-          container_name       = var.poc_container_name
-          catalog_name         = local.catalog_name
-          bronze_database_name = local.bronze_database_name
-          silver_database_name = local.silver_database_name
-        }
+  task {
+    task_key            = "gold-augment"
+    existing_cluster_id = databricks_cluster.single_node_cluster.id
+
+    notebook_task {
+      notebook_path   = "notebooks/gold/GoldPublish_IndicatorAugs_and_Labels.py"
+      source          = "Git Provider"
+      base_parameters = {
+        storage_account_name = var.poc_storage_account
+        container_name       = var.poc_container_name
+        catalog_name         = local.catalog_name
+        gold_database_name   = local.gold_database_name
+        silver_database_name = local.silver_database_name
       }
+    }
+    depends_on {
+      task_key = "silver"
     }
   }
 }

@@ -17,6 +17,7 @@ locals {
   catalog_name         = "nfl-play-by-play-project"
   bronze_database_name = "bronze"
   silver_database_name = "silver"
+  gold_database_name   = "gold"
 
 
 }
