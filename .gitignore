@@ -4,6 +4,8 @@ terraform/.*.hcl
 terraform/*.tfstate*
 terraform/legacystuff/terraform.tfvars.json
 
+# IntelliJ
+.idea
 
 # test data
 test_data
