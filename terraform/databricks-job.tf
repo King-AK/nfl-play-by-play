@@ -7,12 +7,14 @@ data "databricks_spark_version" "latest_ml_lts" {
   ml                = true
 }
 
-resource "databricks_cluster" "single_node_ml_training" {
+resource "databricks_cluster" "single_node_cluster" {
   cluster_name            = "single-node-cluster"
   spark_version           = data.databricks_spark_version.latest_ml_lts.id
   node_type_id            = data.databricks_node_type.smallest.id
   autotermination_minutes = 10
   num_workers             = 0
+  data_security_mode      = "SINGLE_USER"
+  single_user_name        = var.single_user_cluster_user_name
 
   spark_conf = {
     "spark.databricks.cluster.profile"                                              = "singleNode"
@@ -48,7 +50,7 @@ resource "databricks_job" "nfl_pbp_pipeline" {
 
   task {
     task_key            = "bronze"
-    existing_cluster_id = databricks_cluster.single_node_ml_training.id
+    existing_cluster_id = databricks_cluster.single_node_cluster.id
 
     notebook_task {
       notebook_path   = "notebooks/bronze/BronzeIngestion"
@@ -72,7 +74,7 @@ resource "databricks_job" "nfl_pbp_pipeline" {
         task_key = "bronze"
       }
 
-      existing_cluster_id = databricks_cluster.single_node_ml_training.id
+      existing_cluster_id = databricks_cluster.single_node_cluster.id
 
       notebook_task {
         notebook_path   = "notebooks/silver/SilverCuration"

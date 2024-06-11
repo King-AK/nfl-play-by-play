@@ -15,3 +15,7 @@ variable "git_token" {
   type      = string
   sensitive = true
 }
+variable "single_user_cluster_user_name" {
+  type      = string
+  sensitive = true
+}
